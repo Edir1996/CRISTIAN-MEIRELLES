@@ -206,92 +206,107 @@
   </div>
 
   <script>
-    const prizes = ["Prêmio 1", "Prêmio 2", "Prêmio 3", "Prêmio 4"];
-    const display = document.getElementById('display');
-    const winnerText = document.getElementById('winner-text');
-    const winnerModal = document.getElementById('winner-modal');
-    const rouletteModal = document.getElementById('roulette-modal');
-    let spinning = false;
-    let alreadySpun = false;
+  const prizes = ["Prêmio 1", "Prêmio 2", "Prêmio 3", "Prêmio 4"];
+  const display = document.getElementById('display');
+  const winnerText = document.getElementById('winner-text');
+  const winnerModal = document.getElementById('winner-modal');
+  const rouletteModal = document.getElementById('roulette-modal');
+  const instagramBtn = document.getElementById('instagram-btn');
+  const googleBtn = document.getElementById('google-btn');
+  const spinButton = document.getElementById('spin-button');
 
-    function spinNames() {
-      if (spinning || alreadySpun) return;
-      spinning = true;
-      alreadySpun = true;
+  let spinning = false;
+  let instagramDone = false;
+  let googleDone = false;
 
-      let index = 0;
-      let delay = 100;
-      let spinTime = 0;
-      let maxTime = 5000;
-      const winner = prizes[Math.floor(Math.random() * prizes.length)];
+  // Verifica se já participou
+  const alreadySpun = localStorage.getItem('alreadySpun');
 
-      function spin() {
-        display.textContent = prizes[index];
-        index = (index + 1) % prizes.length;
-        spinTime += delay;
-        delay += 50;
+  if (alreadySpun === 'true') {
+    instagramBtn.disabled = true;
+    googleBtn.disabled = true;
+    spinButton.disabled = true;
+  }
 
-        if (spinTime < maxTime) {
-          setTimeout(spin, delay);
-        } else {
-          display.textContent = winner;
-          winnerText.innerHTML = `Você ganhou: <strong>${winner}</strong>`;
-          winnerModal.style.display = "flex";
-          spinning = false;
-          document.getElementById("spin-button").disabled = true;
+  function spinNames() {
+    if (spinning || alreadySpun === 'true') return;
+    spinning = true;
 
-          setTimeout(() => {
-            winnerModal.style.display = "none";
-          }, 5000);
-        }
-      }
+    let index = 0;
+    let delay = 100;
+    let spinTime = 0;
+    let maxTime = 5000;
+    const winner = prizes[Math.floor(Math.random() * prizes.length)];
 
-      spin();
-    }
+    function spin() {
+      display.textContent = prizes[index];
+      index = (index + 1) % prizes.length;
+      spinTime += delay;
+      delay += 50;
 
-    const instagramBtn = document.getElementById('instagram-btn');
-    const googleBtn = document.getElementById('google-btn');
-    const spinButton = document.getElementById('spin-button');
-    let instagramDone = false;
-    let googleDone = false;
+      if (spinTime < maxTime) {
+        setTimeout(spin, delay);
+      } else {
+        display.textContent = winner;
+        winnerText.innerHTML = `Você ganhou: <strong>${winner}</strong>`;
+        winnerModal.style.display = "flex";
+        spinning = false;
+        spinButton.disabled = true;
 
-    instagramBtn.onclick = () => {
-      window.open('https://instagram.com', '_blank');
-      setTimeout(() => {
+        // Salva no localStorage que já girou
+        localStorage.setItem('alreadySpun', 'true');
+
+        // Desativa botões de tarefas
         instagramBtn.disabled = true;
-        instagramDone = true;
-        checkTasks();
-      }, 2000);
-    };
-
-    googleBtn.onclick = () => {
-      window.open('https://www.google.com/maps', '_blank');
-      setTimeout(() => {
         googleBtn.disabled = true;
-        googleDone = true;
-        checkTasks();
-      }, 2000);
-    };
 
-    function checkTasks() {
-      if (instagramDone && googleDone) {
-        rouletteModal.style.display = 'flex';
+        setTimeout(() => {
+          winnerModal.style.display = "none";
+        }, 5000);
       }
     }
 
-    spinButton.onclick = spinNames;
+    spin();
+  }
 
-    // Fechar modal da roleta ao clicar fora
-    rouletteModal.onclick = (e) => {
-      if (e.target === rouletteModal) {
-        rouletteModal.style.display = 'none';
-      }
-    };
+  instagramBtn.onclick = () => {
+    window.open('https://instagram.com', '_blank');
+    setTimeout(() => {
+      instagramBtn.disabled = true;
+      instagramDone = true;
+      checkTasks();
+    }, 2000);
+  };
 
-    winnerModal.onclick = () => {
-      winnerModal.style.display = 'none';
-    };
-  </script>
+  googleBtn.onclick = () => {
+    window.open('https://www.google.com/maps', '_blank');
+    setTimeout(() => {
+      googleBtn.disabled = true;
+      googleDone = true;
+      checkTasks();
+    }, 2000);
+  };
+
+  function checkTasks() {
+    if (instagramDone && googleDone) {
+      rouletteModal.style.display = 'flex';
+    }
+  }
+
+  spinButton.onclick = spinNames;
+
+  // Fechar modal da roleta ao clicar fora
+  rouletteModal.onclick = (e) => {
+    if (e.target === rouletteModal) {
+      rouletteModal.style.display = 'none';
+    }
+  };
+
+  winnerModal.onclick = () => {
+    winnerModal.style.display = 'none';
+  };
+</script>
+
 
 </body>
 </html>
