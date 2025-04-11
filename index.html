@@ -101,7 +101,8 @@
     margin: 30px auto 20px;
     height: 60px;
     color: #5e35b1;
-    animation: pulse 1s infinite alternate;
+    position: relative;
+    overflow: hidden;
   }
 
   #spin-button {
@@ -160,7 +161,36 @@
     }
   }
 
-  /* Media Query adicional para telas muito pequenas */
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .slide-up {
+    animation: slideUp 0.5s ease;
+  }
+
+  .normal {
+    color: #2e2e2e;
+  }
+
+  .color-box {
+    padding: 20px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: bold;
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    position: absolute;
+    width: 100%;
+    left: 0;
+  }
+
   @media (max-width: 360px) {
     .task-button {
       width: 90%;
@@ -170,143 +200,152 @@
       padding: 14px 30px;
     }
   }
-    
-   .normal {
-    color: #2e2e2e;
-    }
 </style>
 
 </head>
 <body>
 
-  <header>
-    <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/6549257-luxo-beleza-mulher-salon-logo-gold-hair-salon-logo-design-vector-template-gratis-vetor.jpg" alt="Logotipo da empresa">
-    <h1><span class="normal">Participe do nosso</span> <span class="highlight">sistema de recompensa!</span></h1>
-  </header>
+<header>
+  <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/6549257-luxo-beleza-mulher-salon-logo-gold-hair-salon-logo-design-vector-template-gratis-vetor.jpg" alt="Logotipo da empresa">
+  <h1><span class="normal">Participe do nosso</span> <span class="highlight">sistema de recompensa!</span></h1>
+</header>
 
-  <p>Complete as tarefas abaixo para ganhar uma chance de sortear um prêmio especial!</p>
+<p>Complete as tarefas abaixo para ganhar uma chance de sortear um prêmio especial!</p>
 
-  <button id="instagram-btn" class="task-button">Seguir no Instagram</button>
-  <button id="google-btn" class="task-button">Avaliar no Google</button>
+<button id="instagram-btn" class="task-button">Seguir no Instagram</button>
+<button id="google-btn" class="task-button">Avaliar no Google</button>
 
-  <!-- Modal com a roleta -->
-  <div id="roulette-modal">
-    <div id="roulette-section">
-      <div id="display">🎁 ...</div>
-      <button id="spin-button">Girar</button>
-    </div>
+<div id="roulette-modal">
+  <div id="roulette-section">
+    <div id="display"></div>
+    <button id="spin-button">Girar</button>
   </div>
+</div>
 
-  <!-- Modal do vencedor -->
-  <div id="winner-modal">
-    <div id="winner-modal-content">
-      <h2>🎉 Parabéns!</h2>
-      <p id="winner-text"></p>
-    </div>
+<div id="winner-modal">
+  <div id="winner-modal-content">
+    <h2>🎉 Parabéns!</h2>
+    <p id="winner-text"></p>
   </div>
+</div>
 
-  <script>
-  const prizes = ["Prêmio 1", "Prêmio 2", "Prêmio 3", "Prêmio 4"];
-  const display = document.getElementById('display');
-  const winnerText = document.getElementById('winner-text');
-  const winnerModal = document.getElementById('winner-modal');
-  const rouletteModal = document.getElementById('roulette-modal');
-  const instagramBtn = document.getElementById('instagram-btn');
-  const googleBtn = document.getElementById('google-btn');
-  const spinButton = document.getElementById('spin-button');
+<script>
+const prizes = [
+  { name: "Prêmio 1", color: "#EF5350" },
+  { name: "Prêmio 2", color: "#42A5F5" },
+  { name: "Prêmio 3", color: "#66BB6A" },
+  { name: "Prêmio 4", color: "#FFB74D" }
+];
 
-  let spinning = false;
-  let instagramDone = false;
-  let googleDone = false;
+const display = document.getElementById('display');
+const winnerText = document.getElementById('winner-text');
+const winnerModal = document.getElementById('winner-modal');
+const rouletteModal = document.getElementById('roulette-modal');
+const instagramBtn = document.getElementById('instagram-btn');
+const googleBtn = document.getElementById('google-btn');
+const spinButton = document.getElementById('spin-button');
 
-  // Verifica se já participou
-  const alreadySpun = localStorage.getItem('alreadySpun');
+let spinning = false;
+let instagramDone = false;
+let googleDone = false;
 
-  if (alreadySpun === 'true') {
-    instagramBtn.disabled = true;
-    googleBtn.disabled = true;
-    spinButton.disabled = true;
-  }
+const alreadySpun = localStorage.getItem('alreadySpun');
 
-  function spinNames() {
-    if (spinning || alreadySpun === 'true') return;
-    spinning = true;
+if (alreadySpun === 'true') {
+  instagramBtn.disabled = true;
+  googleBtn.disabled = true;
+  spinButton.disabled = true;
+}
 
-    let index = 0;
-    let delay = 100;
-    let spinTime = 0;
-    let maxTime = 5000;
-    const winner = prizes[Math.floor(Math.random() * prizes.length)];
+function spinNames() {
+  if (spinning || alreadySpun === 'true') return;
+  spinning = true;
 
-    function spin() {
-      display.textContent = prizes[index];
-      index = (index + 1) % prizes.length;
-      spinTime += delay;
-      delay += 50;
+  let index = 0;
+  let delay = 100;
+  let spinTime = 0;
+  let maxTime = 5000;
+  const winner = prizes[Math.floor(Math.random() * prizes.length)];
+  
+  function spin() {
+    const prize = prizes[index];
+    const prizeElement = document.createElement('div');
+    prizeElement.className = 'color-box slide-up';
+    prizeElement.style.backgroundColor = prize.color;
+    prizeElement.textContent = prize.name;
 
-      if (spinTime < maxTime) {
-        setTimeout(spin, delay);
-      } else {
-        display.textContent = winner;
-        winnerText.innerHTML = `Você ganhou: <strong>${winner}</strong>`;
-        winnerModal.style.display = "flex";
-        spinning = false;
-        spinButton.disabled = true;
+    display.innerHTML = '';
+    display.appendChild(prizeElement);
 
-        // Salva no localStorage que já girou
-        localStorage.setItem('alreadySpun', 'true');
+    index = (index + 1) % prizes.length;
+    spinTime += delay;
+    delay += 50;
 
-        // Desativa botões de tarefas
-        instagramBtn.disabled = true;
-        googleBtn.disabled = true;
+    if (spinTime < maxTime) {
+      setTimeout(spin, delay);
+    } else {
+      const winnerElement = document.createElement('div');
+      winnerElement.className = 'color-box slide-up';
+      winnerElement.style.backgroundColor = winner.color;
+      winnerElement.textContent = winner.name;
 
-        setTimeout(() => {
-          winnerModal.style.display = "none";
-        }, 5000);
-      }
-    }
+      display.innerHTML = '';
+      display.appendChild(winnerElement);
 
-    spin();
-  }
+      winnerText.innerHTML = `Você ganhou: <strong>${winner.name}</strong>`;
+      winnerModal.style.display = "flex";
+      spinning = false;
+      spinButton.disabled = true;
 
-  instagramBtn.onclick = () => {
-    window.open('https://instagram.com', '_blank');
-    setTimeout(() => {
+      localStorage.setItem('alreadySpun', 'true');
       instagramBtn.disabled = true;
-      instagramDone = true;
-      checkTasks();
-    }, 2000);
-  };
-
-  googleBtn.onclick = () => {
-    window.open('https://www.google.com/maps', '_blank');
-    setTimeout(() => {
       googleBtn.disabled = true;
-      googleDone = true;
-      checkTasks();
-    }, 2000);
-  };
 
-  function checkTasks() {
-    if (instagramDone && googleDone) {
-      rouletteModal.style.display = 'flex';
+      setTimeout(() => {
+        winnerModal.style.display = "none";
+      }, 5000);
     }
   }
 
-  spinButton.onclick = spinNames;
+  spin();
+}
 
-  // Fechar modal da roleta ao clicar fora
-  rouletteModal.onclick = (e) => {
-    if (e.target === rouletteModal) {
-      rouletteModal.style.display = 'none';
-    }
-  };
+instagramBtn.onclick = () => {
+  window.open('https://instagram.com', '_blank');
+  setTimeout(() => {
+    instagramBtn.disabled = true;
+    instagramDone = true;
+    checkTasks();
+  }, 2000);
+};
 
-  winnerModal.onclick = () => {
-    winnerModal.style.display = 'none';
-  };
+googleBtn.onclick = () => {
+  window.open('https://www.google.com/maps', '_blank');
+  setTimeout(() => {
+    googleBtn.disabled = true;
+    googleDone = true;
+    checkTasks();
+  }, 2000);
+};
+
+function checkTasks() {
+  if (instagramDone && googleDone) {
+    rouletteModal.style.display = 'flex';
+  }
+}
+
+spinButton.onclick = spinNames;
+
+rouletteModal.onclick = (e) => {
+  if (e.target === rouletteModal) {
+    rouletteModal.style.display = 'none';
+  }
+};
+
+winnerModal.onclick = () => {
+  winnerModal.style.display = 'none';
+};
 </script>
-
 
 </body>
 </html>
