@@ -247,44 +247,54 @@
   }
 
   function spinNames() {
-    if (spinning) return;
+  if (spinning) return;
 
-    spinning = true;
-    spinButton.disabled = true;
-    stopIdleScroll();
-    renderTrack();
+  spinning = true;
+  spinButton.disabled = true;
+  stopIdleScroll();
+  renderTrack();
 
-    let currentPos = 0;
-    const totalDistance = (prizes.length * prizeWidth * repeatCount) / 2;
-    let duration = 8000;
-    let start = null;
+  // Sorteio aleatório do índice do prêmio
+  const prizeIndex = Math.floor(Math.random() * prizes.length);
+  const centerOffset = (window.innerWidth / 2) - (prizeWidth / 2);
 
-    function easeOutQuad(t) {
-      return t * (2 - t);
-    }
+  // Calcula a posição final para alinhar o prêmio sorteado com a linha central
+  const totalRepeats = Math.floor(repeatCount / 2); // Para não ultrapassar
+  const finalIndex = (totalRepeats * prizes.length) + prizeIndex;
+  const targetPosition = finalIndex * prizeWidth;
 
-    function animate(time) {
-      if (!start) start = time;
-      const elapsed = time - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = easeOutQuad(progress);
-      currentPos = easedProgress * totalDistance;
-      rouletteTrack.style.transform = `translateX(${-currentPos}px)`;
+  const totalScroll = targetPosition - centerOffset;
+  const duration = 5000;
+  let start = null;
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        setTimeout(() => {
-          winnerModal.style.display = 'flex';
-          setTimeout(() => {
-            winnerModal.style.display = 'none';
-          }, 4000);
-        }, 300);
-      }
-    }
-
-    requestAnimationFrame(animate);
+  function easeOutQuad(t) {
+    return t * (2 - t);
   }
+
+  function animate(time) {
+    if (!start) start = time;
+    const elapsed = time - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeOutQuad(progress);
+    const currentPos = easedProgress * totalScroll;
+    rouletteTrack.style.transform = `translateX(${-currentPos}px)`;
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      setTimeout(() => {
+        winnerModal.querySelector('h2').innerHTML = `🎉 Parabéns!</span>`;
+        winnerModal.style.display = 'flex';
+        setTimeout(() => {
+          winnerModal.style.display = 'none';
+        }, 4000);
+      }, 300);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
 
   instagramBtn.onclick = () => {
     window.open('https://www.instagram.com/spacapilar.cm');
